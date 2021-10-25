@@ -1,0 +1,22 @@
+window {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+scale {
+    background-color: transparent;
+}
+
+scale slider {
+    background-color: transparent;
+    border: none;
+    min-height: 55px;
+}
+
+scale indicator {
+    background-color: green;
+    color: green;
+}
+
+button {
+    background-color: transparent;
+}
