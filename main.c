@@ -10,6 +10,7 @@ int system(const char *command);
 GtkWidget *window;
 GtkWidget *volumeScale;
 GtkWidget* brightnessScale;
+GtkWidget* networkNameLabel;
 
 int count = 0;
 char percentageChar = '%';
@@ -78,6 +79,33 @@ static char* get_volume(int* volume)
   volume = atoi(volClean);
 }
 
+void get_network_info()
+{
+  FILE *fp;
+  char path[1035];
+  char buffer[50];
+  char networkName[150];
+  char label[200];
+  sprintf(buffer, "nmcli -t -f NAME c show --active");
+  
+  fp = popen(buffer, "r");
+
+  if (fp == NULL) {
+    g_print("Failed to run command\n" );
+    exit(1);
+  }
+
+  /* Read the output */
+  fgets(networkName, sizeof(path), fp);
+
+  pclose(fp);  
+
+  sprintf(label, "Connected\n%s",networkName);
+
+  //gtk_label_set_label(networkNameLabel, networkName);
+  gtk_label_set_label(networkNameLabel, label);
+}
+
 int main (int* argc, char*** argv)
 {  
   GtkBuilder* builder;
@@ -107,8 +135,6 @@ int main (int* argc, char*** argv)
 
   gtk_widget_show (window);
 
-  get_volume(volume);
-
   volumeScale = gtk_builder_get_object(builder, "volume-scale");
   gtk_range_set_range(volumeScale, (double) 0, (double) 100);
   gtk_range_set_value(volumeScale, (double) volume);
@@ -119,6 +145,11 @@ int main (int* argc, char*** argv)
   gtk_range_set_show_fill_level(brightnessScale, false);
 
   g_signal_connect (volumeScale, "value-changed", G_CALLBACK (change_volume), NULL);
+
+  networkNameLabel = gtk_builder_get_object(builder, "network-name");
+
+  get_volume(volume);
+  get_network_info();
     
   gtk_main();
   return EXIT_SUCCESS;
