@@ -8,7 +8,8 @@
 int system(const char *command);
 
 GtkWidget *window;
-GtkWidget *scale;
+GtkWidget *volumeScale;
+GtkWidget* brightnessScale;
 
 int count = 0;
 char percentageChar = '%';
@@ -21,7 +22,7 @@ void *change_volume_thread(void *vargp)
 {
     FILE *fp;
     char buffer[40];
-    double val = gtk_range_get_value(scale);
+    double val = gtk_range_get_value(volumeScale);
     sprintf(buffer, "amixer -Mq set Master %d%c", (int) val, percentageChar);    
     system(buffer);
     return NULL;
@@ -78,7 +79,7 @@ static char* get_volume(int* volume)
 }
 
 int main (int* argc, char*** argv)
-{
+{  
   GtkBuilder* builder;
   GdkScreen* screen;
   GdkVisual* visual;
@@ -107,12 +108,17 @@ int main (int* argc, char*** argv)
   gtk_widget_show (window);
 
   get_volume(volume);
-  scale = gtk_builder_get_object(builder, "scale");
-  gtk_range_set_range(scale, (double) 0, (double) 100);
-  gtk_range_set_value(scale, (double) volume);
-  gtk_range_set_show_fill_level(scale, false);
 
-  g_signal_connect (scale, "value-changed", G_CALLBACK (change_volume), NULL);
+  volumeScale = gtk_builder_get_object(builder, "volume-scale");
+  gtk_range_set_range(volumeScale, (double) 0, (double) 100);
+  gtk_range_set_value(volumeScale, (double) volume);
+  gtk_range_set_show_fill_level(volumeScale, false);
+
+  brightnessScale = gtk_builder_get_object(builder, "brightness-scale");
+  gtk_range_set_range(brightnessScale, (double) 0, (double) 100);
+  gtk_range_set_show_fill_level(brightnessScale, false);
+
+  g_signal_connect (volumeScale, "value-changed", G_CALLBACK (change_volume), NULL);
     
   gtk_main();
   return EXIT_SUCCESS;
